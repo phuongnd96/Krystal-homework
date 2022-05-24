@@ -1,0 +1,8 @@
+# Org tagging standard
+application: krystal-homework
+application-id: krystal-homework
+system-tier-classification: tier-1
+data-classification: confidental
+bussiness-unit: "it"
+support-team: "phuong@org.me"
+master_prefix: "krystal-homework"

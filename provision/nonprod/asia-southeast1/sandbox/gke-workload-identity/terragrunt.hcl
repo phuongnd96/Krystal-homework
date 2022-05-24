@@ -30,35 +30,15 @@ include "root" {
 }
 
 terraform {
-  source = "git::https://github.com/phuongnd96/simple-gke.git//?ref=master"
+  source = "../../../../modules//gke-workload-identity"
 }
 
 // // Variables to pass into the module
 inputs = {
-  project_id                  = "${local.project_id}"
-  name                        = "zonal-${local.metadata.master_prefix}-${local.environment_vars.locals.environment}-gke"
-  region                      = "${local.gcp_region}"
-  zones                       = ["asia-southeast1-a","asia-southeast1-b"]
-  network                     = "${local.metadata.master_prefix}-${local.environment_vars.locals.environment}-network"
-  subnetwork                  = "gke-subnet-${local.gcp_region}"
-  pods_secondary_ip_range_name  = "ip-range-pods"
-  services_secondary_range_name = "ip-range-scv"
-  remove_default_node_pool    = true
-  nodes_per_az = 1
-  deploy_grafana  = true
-  grafana_chart_version = "6.29.3"
-  grafana_chart_repository = "https://grafana.github.io/helm-charts"
-  grafana_chart = "grafana"
-  grafana_ns  = "monitoring"
-  deploy_nginx_ingress  = true
-  nginx_ingress_chart_version = "4.1.2"
-  nginx_ingress_chart_repository = "https://kubernetes.github.io/ingress-nginx"
-  nginx_ingress_chart = "ingress-nginx"
-  nginx_ingress_ns = "ingress-nginx"
-  create_cluster_admin_role_for_users = true
-  admin_users = [
-    {
-        name= "career.phuongnguyen@gmail.com"
-    }
-  ]
+  project_id = local.project_id
+  cluster_name = "regional-krystal-homework-sandbox-gke"
+  cluster_zone = "asia-southeast1-b"
+  name       = "${local.metadata.master_prefix}-${local.environment_vars.locals.environment}-secret-operator"
+  namespace  = "kube-system"
+  roles = ["roles/secretmanager.admin","roles/iam.serviceAccountTokenCreator"]
 }

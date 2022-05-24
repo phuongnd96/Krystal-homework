@@ -7,7 +7,7 @@
 locals {
   # GCP: Automatically load project-level variables
   project_vars = read_terragrunt_config(find_in_parent_folders("project.hcl"))
-
+  
   # Automatically load region-level variables
   region_vars = read_terragrunt_config(find_in_parent_folders("region.hcl"))
 
@@ -16,8 +16,8 @@ locals {
 
   # Extract the variables we need for easy access
   project_id = local.project_vars.locals.project_id
-  gcp_region = local.region_vars.locals.gcp_region
-  metadata   = yamldecode(file(find_in_parent_folders("metadata.yaml")))
+  gcp_region   = local.region_vars.locals.gcp_region
+  metadata = yamldecode(file(find_in_parent_folders("metadata.yaml")))
 }
 # ---------------------------------------------------------------------------------------------------------------------
 # Include configurations that are common used across multiple environments.
@@ -30,35 +30,34 @@ include "root" {
 }
 
 terraform {
-  source = "git::https://github.com/phuongnd96/simple-gke.git//?ref=master"
+  source = "git::https://github.com/terraform-google-modules/terraform-google-network.git//?ref=v5.0.0"
 }
 
 // // Variables to pass into the module
 inputs = {
-  project_id                  = "${local.project_id}"
-  name                        = "zonal-${local.metadata.master_prefix}-${local.environment_vars.locals.environment}-gke"
-  region                      = "${local.gcp_region}"
-  zones                       = ["asia-southeast1-a","asia-southeast1-b"]
-  network                     = "${local.metadata.master_prefix}-${local.environment_vars.locals.environment}-network"
-  subnetwork                  = "gke-subnet-${local.gcp_region}"
-  pods_secondary_ip_range_name  = "ip-range-pods"
-  services_secondary_range_name = "ip-range-scv"
-  remove_default_node_pool    = true
-  nodes_per_az = 1
-  deploy_grafana  = true
-  grafana_chart_version = "6.29.3"
-  grafana_chart_repository = "https://grafana.github.io/helm-charts"
-  grafana_chart = "grafana"
-  grafana_ns  = "monitoring"
-  deploy_nginx_ingress  = true
-  nginx_ingress_chart_version = "4.1.2"
-  nginx_ingress_chart_repository = "https://kubernetes.github.io/ingress-nginx"
-  nginx_ingress_chart = "ingress-nginx"
-  nginx_ingress_ns = "ingress-nginx"
-  create_cluster_admin_role_for_users = true
-  admin_users = [
+  project_id = local.project_id
+  name = "${local.metadata.master_prefix}-${local.environment_vars.locals.environment}-gke"
+  network_name = "${local.metadata.master_prefix}-${local.environment_vars.locals.environment}-network"
+  subnets = [
     {
-        name= "career.phuongnguyen@gmail.com"
+      subnet_name           = "gke-subnet-${local.gcp_region}"
+      subnet_ip             = "10.0.0.0/17"
+      subnet_region         = local.gcp_region
+      subnet_private_access = "false"
     }
   ]
+  secondary_ranges = {
+    "gke-subnet-${local.gcp_region}" = [
+      // limit to 40 secondary cidr block per subnet
+      {
+        range_name    = "ip-range-pods"
+        ip_cidr_range = "192.168.0.0/18"
+      },
+      {
+        range_name    = "ip-range-scv"
+        ip_cidr_range = "192.168.64.0/18"
+      }
+    ]
+  }
+
 }
