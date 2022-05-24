@@ -30,7 +30,7 @@ include "root" {
 }
 
 terraform {
-  source = "git::https://github.com/phuongnd96/simple-gke.git//?ref=master"
+  source = "git::https://github.com/phuongnd96/simple-gke.git//?ref=0.0.4"
 }
 
 // // Variables to pass into the module
@@ -45,16 +45,6 @@ inputs = {
   services_secondary_range_name = "ip-range-scv"
   remove_default_node_pool    = true
   nodes_per_az = 1
-  deploy_grafana  = true
-  grafana_chart_version = "6.29.3"
-  grafana_chart_repository = "https://grafana.github.io/helm-charts"
-  grafana_chart = "grafana"
-  grafana_ns  = "monitoring"
-  deploy_nginx_ingress  = true
-  nginx_ingress_chart_version = "4.1.2"
-  nginx_ingress_chart_repository = "https://kubernetes.github.io/ingress-nginx"
-  nginx_ingress_chart = "ingress-nginx"
-  nginx_ingress_ns = "ingress-nginx"
   create_cluster_admin_role_for_users = true
   admin_users = [
     {
